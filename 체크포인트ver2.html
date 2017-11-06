@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../jquery-3.2.1.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="">
+        <input type="button" name="check" id="check" value="전체 선택">
+        <input type="button" name="uncheck" id="uncheck" value="전체 해제">
+        <br>
+        <input type="checkbox" value="야구" class="name" >야구
+        <br>
+        <input type="checkbox" value="축구" class="name" >축구
+        <br>
+        <input type="checkbox" value="농구" class="name" >농구
+        <br>
+        <input type="checkbox" value="배구" class="name" >배구
+        <br>
+        <input type="checkbox" value="탁구" class="name" >탁구
+        <br>
+        <textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>
+
+    </form>
+
+    <script>
+
+        var boardText = "";
+
+        //1.
+        $("#check").click(function () {
+            $(".name").prop("checked", true);
+            
+            var boardText = "";
+
+            $('.name:checked').each(function () {
+                boardText += $(this).val() + " ";
+            });
+
+            $("#textarea").text(boardText);
+        });
+
+        //2.
+        $("#uncheck").click(function () {
+            $(".name").prop("checked", false);
+            $("#textarea").text(" ");
+        });
+
+        //3.
+        $(".name").change(function () {
+            
+            boardText = "";
+
+            $('.name:checked').each(function () {
+                boardText += $(this).val() + " ";
+            });
+            $("#textarea").text(boardText);
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+
+
+    <script>
+
+        //캔버스 관련 변수
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        //공 관련 변수
+        var x = canvas.width / 2;
+        var y = canvas.height / 2;
+        var dx = 2;
+        var dy = -2;
+        var ballRadius = 10;
+        var ballColor = "#0095DD";
+
+        //패드 관련 변수 
+        var paddleHeight = 10;
+        var paddleWidth = 100;
+        var paddleX = (canvas.width - paddleWidth) / 2;
+
+        //벽돌 관련 변수
+        var brickRowCount = 4;
+        var brickColumnCount = 5;
+        var brickWidth = 75;
+        var brickHeight = 20;
+        var brickPadding = 10;
+        var brickOffsetTop = 30;
+        var brickOffsetLeft = 30;
+
+        //점수 관련 변수
+        var score = 0;
+
+        //목슴
+
+        var lives = 3;
+
+        //목슴표시 
+        function drawLives() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "RED";
+            ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+        }
+
+        //캔버스에 텍스트 그리기
+        function drawScore() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Score: " + score, 8, 20);
+        }
+        //벽돌 객체 생성
+        var bricks = [];
+        for (c = 0; c < brickColumnCount; c++) {
+            bricks[c] = [];
+            for (r = 0; r < brickRowCount; r++) {
+                bricks[c][r] = { x: 0, y: 0, status: 1 };
+            }
+        }
+
+        //벽돌 그리는 함수
+        function drawBricks() {
+            for (c = 0; c < brickColumnCount; c++) {
+                for (r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status == 1) {
+                        var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                        var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].y = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                        ctx.fillStyle = randomColor();
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+
+        }
+
+        //버튼
+        var rightPressed = false;
+        var leftPressed = false;
+
+        //키 이벤트 등록 
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+        document.addEventListener("mousemove", mouseMoveHandler, false);
+
+        //키 이벤트 핸들러
+        function keyDownHandler(e) {
+            if (e.keyCode == 39) {
+                rightPressed = true;
+            }
+            else if (e.keyCode == 37) {
+                leftPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.keyCode == 39) {
+                rightPressed = false;
+            }
+            else if (e.keyCode == 37) {
+                leftPressed = false;
+            }
+        }
+
+        function mouseMoveHandler(e) {
+            var relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+                paddleX = relativeX - paddleWidth / 2;
+            }
+        }
+        //화면에 계속 그리는 메서드
+        function draw() {
+            //지우고 다시 그린다. 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBricks();
+            drawBall();
+            drawPaddle();
+            collisionDetection();
+            drawScore();
+            drawLives();
+            
+            x += dx;
+            y += dy;
+
+            //상하좌우에 닿으면 팅기계 충돌처리 
+            //단 바닥에 닿으면 게임 오버 
+            if (y + dy < ballRadius) {
+                dy = -dy;
+                ballColor = randomColor();
+            } else if (y + dy > canvas.height - ballRadius) {
+                if (x > paddleX && x < paddleX + paddleWidth) {
+                    dy = -dy;
+                } else {
+                    lives--;
+                    if (!lives) {
+                        alert("GAME OVER");
+                        document.location.reload();
+
+                    } else {
+                        x = canvas.width / 2;
+                        y = canvas.height - 30;
+                        dx = 3;
+                        dy = -3;
+                        paddleX = (canvas.width - paddleWidth) / 2;
+                    }
+                }
+            }
+
+            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+                dx = -dx;
+                ballColor = randomColor();
+            }
+
+
+            if (rightPressed && paddleX < canvas.width - paddleWidth) {
+                paddleX += 7;
+            }
+            else if (leftPressed && paddleX > 0) {
+                paddleX -= 7;
+            }
+        }
+
+        //공그리는 함수
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = ballColor;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        //패들그리는 함수 
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        //색랜덤변경 
+        function randomColor() {
+            //숫자 랜덤으로 골라서 붙인다. round = 반올림 16진수로 만들어줌
+            var colorCode = "#" + Math.round(Math.random() * 0xffffff).toString(16);
+
+            return colorCode;
+        }
+
+        //벽과 공간의 충돌처리 함수 
+        function collisionDetection() {
+            for (c = 0; c < brickColumnCount; c++) {
+                for (r = 0; r < brickRowCount; r++) {
+                    var b = bricks[c][r];
+                    if (b.status == 1) {
+                        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                            dy = -dy;
+                            b.status = 0;
+                            randomColor();
+                            score++;
+                            if (score == brickRowCount * brickColumnCount) {
+                                alert("YOU WIN, CONGRATULATIONS!");
+                                document.location.reload();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //매번 draw
+        setInterval(draw, 10);
+
+        //알게된점, 및 추가한점 
+        //캔버스는 좌측 상단부터 시작
+
+        //공팅기면 랜덤컬로로 바꾸기 랜덤 컬러로 바꾸기위해 볼 색을 변수로 지정 왜냐 계속바뀌는 값이니까
+
+        //어떻게 계속 이벤트를 받을까? 와일문으로?
+        //1)그냥 셋인터벌에 있는 드로우함수에 주니까 계속 돈다 지 알아서
+
+        //어떻게 충돌처리를 할까?
+        //1) 켄버스 길이계산을 통해 벽충돌 구현
+        //2) 벽돌 충돌은 공의 중심이 벽돌 중 하나의 좌표안에 있다면 처리해 주면 된다.
+        //2-1) 4가지 사실이 참이면 된다. 
+        // 공의 x 위치는 벽돌의 x 위치보다 큽니다.
+        // 볼의 x 위치는 브릭의 x 위치와 너비보다 작습니다.
+        // 볼의 y 위치는 벽돌의 y 위치보다 큽니다.
+        // 볼의 y 위치는 벽돌의 y 위치와 높이보다 작습니다.
+
+    </script>
+</body>
+
+</html>

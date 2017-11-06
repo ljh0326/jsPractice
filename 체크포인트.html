@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../jquery-3.2.1.js"></script>
+</head>
+
+<body>
+
+    <form action="">
+        <input type="button" name="check" id="check" value="전체 선택" onclick="checkAll()">
+        <input type="button" name="uncheck" id="uncheck" value="전체 해제" onclick="uncheckAll()">
+        <br>
+        <input type="checkbox" value="야구" class="name" onchange="change()">야구
+        <br>
+        <input type="checkbox" value="축구" class="name" onchange="change()">축구
+        <br>
+        <input type="checkbox" value="농구" class="name" onchange="change()">농구
+        <br>
+        <input type="checkbox" value="배구" class="name" onchange="change()">배구
+        <br>
+        <input type="checkbox" value="탁구" class="name" onchange="change()">탁구
+        <br>
+        <textarea name="textarea" id="textarea" cols="30" rows="10"></textarea>
+
+    </form>
+
+    <script>
+
+        // var check = document.getElementById("check");
+        // var unCheck = document.getElementById("uncheck");
+
+        var checkBoxs = document.getElementsByClassName("name");
+        var board = document.getElementById("textarea");
+        var boardText = '';
+
+        //1.전체 체크 버튼을 누르면, 전체 체크가 되고 체크박스 밸류값이 입력된다.
+        function checkAll() {
+
+            boardText = " ";
+
+            for (let i = 0; i < checkBoxs.length; i++) {
+                checkBoxs[i].checked = true;
+                boardText += checkBoxs[i].getAttribute("value") + " ";
+            }
+            board.innerText = boardText;
+        }
+
+        //2.전체 해제 버튼을 누르면, 체크는 모두 해제되고 텍스트 에이리어는 엠티 값이 된다.
+        function uncheckAll() {
+            for (let i = 0; i < checkBoxs.length; i++) {
+                checkBoxs[i].checked = false;
+            }
+            boardText = " ";
+            board.innerText = boardText;
+        }
+
+        //3.체크를 해제하거나 선택하면 해제된 상태를 제외하고 나머지 값을 보드 텍스트에 넣어주면 된다. 
+
+        //일일이 달아주는거 왜안될까? 질문
+        // for (let i = 0; i < checkBoxs.length; i++) {
+        //     checkBoxs[i].onchange(){
+        //         boardText = " ";
+        //         for (let i = 0; i < checkBoxs.length; i++) {
+        //             if (checkBoxs[i].checked == true) {
+        //                 boardText += checkBoxs[i].getAttribute("value") + " ";
+        //             };
+        //         };
+
+        //         board.innerText = boardText;
+        //     };
+        // };
+        
+        // for(let i = 0; i < checkBoxs.length; i++){
+        // checkBoxs[i].addEventListener("onchange", change, false);
+        // }
+        
+        function change(){
+            boardText = " ";
+
+            for(let i = 0; i < checkBoxs.length ; i++){
+                if(checkBoxs[i].checked == true){
+                    // boardText += checkBoxs[i].getAttribute("value").toString() + " ";
+                    boardText += checkBoxs[i].getAttribute("value") + " ";
+                }
+            }
+            board.innerText = boardText;  
+        }
+
+
+        //알게 된 점
+        //코딩할떄는 그냥 전체 로직부터 생각해서, 천천히짜자 이건 경쟁대회가 아냐.. 생각도안나 마음이 급하니까
+        //아니 getAttribute해서 toString으로 해준다는걸 깜빡했네 이거 toString안해주면 값이 뭐지? 안해줘도 스트링인데? 아까는 안됐는데... 일단 오키도키
+
+        //jQuery로 바꿔보자 
+
+    </script>
+</body>
+
+</html>
